@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: use-scripts
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: use-scripts
+    spec:
+      restartPolicy: "Never"
+      volumes:
+        - name: sharedvolume
+          persistentVolumeClaim:
+            claimName: shared-pvc1
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+      containers:
+        - name: use-scripts
+          image: byrnedo/alpine-curl:latest
+          imagePullPolicy: Always
+          command: ["sh", "-c", "echo 'Script Starts'; ls -l /shared/dreamhome-scripts; while [ ! -d /shared/dreamhome-scripts ]; do echo Waiting for scripts; sleep 1; done; chmod +x /shared/dreamhome-scripts/*.sh; /shared/dreamhome-scripts/script-one.sh;"]
+          volumeMounts:
+            - mountPath: /shared
+              name: sharedvolume
+          env:
+            - name: MY_JOB_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
