@@ -22,7 +22,7 @@ public class DatabaseConnection {
     private Database cloudant;
 
     @Inject
-    @ConfigProperty(name = "database", defaultValue = "dream-homes")
+    @ConfigProperty(name = "database", defaultValue = "property")
     String database;
 
     @Inject
