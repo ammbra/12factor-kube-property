@@ -36,8 +36,8 @@ spec:
                       httpGet:
                           path: {{.Values.deployment.containers.health.path}}
                           port: {{.Values.deployment.containers.ports.name}}
-                      initialDelaySeconds: 10
-                      timeoutSeconds: 10
+                      initialDelaySeconds: {{.Values.deployment.containers.health.initialDelaySeconds}}
+                      timeoutSeconds: {{.Values.deployment.containers.health.timeoutSeconds}}
                   readinessProbe:
                       httpGet:
                           path: {{.Values.deployment.containers.health.path}}
