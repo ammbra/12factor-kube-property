@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: property
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: property
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: property
+        tier: backend
+        implementation: microprofile
+    spec:
+      imagePullSecrets:
+        - name: regsecret
+      containers:
+        - name: property
+          image: <REPLACE_WITH_YOUR_OWN_IMAGE_REGISTRY_LOCATION>
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 9084
+          env:
+            - name: DATABASE_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: binding-cloudant
+                  key: binding
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: property
+  labels:
+    app: property
+    tier: backend
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 9084
+      targetPort: http
+      nodePort: 31247
+  selector:
+    app: property

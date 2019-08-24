@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: copy-scripts-poller
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name:  copy-scripts-poller
+    spec:
+      restartPolicy: "Never"
+      volumes:
+        - name: sharedvolume
+          persistentVolumeClaim:
+            claimName: shared-pvc1
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+      containers:
+        - name:  copy-scripts-poller
+          image: alpine:3.7
+          imagePullPolicy: Always
+          command: ["sh", "-c", "ls -l /shared; rm -rf /shared/*; ls -l /shared; while [ ! -d /shared/dreamhome-scripts ]; do echo Waiting for scripts to be copied; sleep 2; done; sleep 10; ls -l /shared/dreamhome-scripts; "]
+          volumeMounts:
+            - mountPath: /shared
+              name: sharedvolume
